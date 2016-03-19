@@ -1,21 +1,16 @@
 var express = require('express');
 var fs = require('fs');
+var config = require( __dirname + '/./config' );
+var utils = require( __dirname + '/./utils');
 
-var NPM_PATH = process.env.HOME + '/.npm';
-var REGISTRY_NAME = 'registry.npmjs.org';
-var LOCAL_REGISTRY = 'localhost:8080';
+var NPM_PATH = config.NPM_PATH;
+var REGISTRY_NAME = config.REGISTRY_NAME;
 
+var fetchAndCacheMetadata = utils.fetchAndCacheMetadata;
+var fetchAndCacheTarball = utils.fetchAndCacheTarball;
+var patchData = utils.patchData;
 
 var app = express();
-
-function patchData( data ){
-  Object.keys(data.versions).forEach( function( v ){
-    var val = data.versions[v];
-    val.dist.tarball = val.dist.tarball.replace( REGISTRY_NAME, LOCAL_REGISTRY );
-  });
-}
-
-
 app.use( function(req, res, next ){
   console.log(req.method, req.path );
   next();
@@ -24,7 +19,13 @@ app.use( function(req, res, next ){
 app.get( '/:package', function( req, res ){
   var packageName = req.params.package;
   var cacheFile = [ NPM_PATH, REGISTRY_NAME, packageName, '.cache.json' ].join( '/' );
-  var cacheData = fs.readFileSync( cacheFile, 'utf-8' );
+  var cacheData;
+
+  if( !fs.existsSync( cacheFile ) ){
+    fetchAndCacheMetadata( packageName, cacheFile );
+  }
+
+  cacheData = fs.readFileSync( cacheFile, 'utf-8' );
   cacheData = JSON.parse( cacheData );
 
   patchData( cacheData );
@@ -35,6 +36,11 @@ app.get( '/:package/-/:packageName-:version.tgz', function( req, res ){
   var packageName = req.params.package;
   var version = req.params.version.split('-').pop();
   var packagePath = [ NPM_PATH , packageName, version, 'package.tgz'].join( '/' );
+
+  if( !fs.existsSync( packagePath ) ){
+    fetchAndCacheTarball( packageName, version, packagePath );
+  }
+
   return fs.createReadStream( packagePath ).pipe( res );
 });
 
