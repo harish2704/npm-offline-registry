@@ -1,12 +1,13 @@
 {
   "name": "npm-offline-registry",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Super simple loca npm registry server for offline usage",
   "main": "bin/www",
   "directories": {
     "test": "test"
   },
   "dependencies": {
+    "bluebird": "^3.3.4",
     "express": "^4.13.4"
   },
   "devDependencies": {
@@ -17,7 +18,7 @@
     "start": "node ./bin/www"
   },
   "bin": {
-    "npm-offline-registry" : "./bin/www"
+    "npm-offline-registry": "./bin/www"
   },
   "repository": {
     "type": "git",
@@ -29,7 +30,10 @@
     "npm",
     "cache"
   ],
-  "author": "Harish.K <harish2704@gmail.com>",
+  "author": {
+    "name": "Harish.K",
+    "email": "harish2704@gmail.com"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/harish2704/npm-offline-registry/issues"
