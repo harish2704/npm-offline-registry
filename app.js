@@ -32,9 +32,9 @@ app.get( '/:package', function( req, res ){
   return res.send( cacheData );
 });
 
-app.get( '/:package/-/:packageName-:version.tgz', function( req, res ){
+app.get( '/:package/-/:tarball', function( req, res ){
   var packageName = req.params.package;
-  var version = req.params.version.split('-').pop();
+  var version = req.params.tarball.match( new RegExp( packageName + '-(.*).tgz') )[1];
   var packagePath = [ NPM_PATH , packageName, version, 'package.tgz'].join( '/' );
 
   if( !fs.existsSync( packagePath ) ){
