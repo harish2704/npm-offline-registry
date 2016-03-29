@@ -34,7 +34,7 @@ exports.patchData = function ( data ){
 };
 
 var fetchAndCacheMetadataCmd =[
-  'mkdir $packageCacheDir',
+  'mkdir -p $packageCacheDir',
   'wget -nv "http://$REGISTRY_NAME/$packageName" -O $cacheFile || { wgetExitStatus=$? && rm $cacheFile; exit $wgetExitStatus ; }'
 ].join( ';' );
 

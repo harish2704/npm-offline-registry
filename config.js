@@ -2,7 +2,7 @@
 var defaultConfig = {
   NPM_PATH       : process.env.HOME + '/.npm',
   REGISTRY_NAME  : 'registry.npmjs.org',
-  LOCAL_REGISTRY : 'localhost:8080',
+  PORT: 8234
 };
 
 var config = {};
@@ -10,6 +10,8 @@ var config = {};
 Object.keys( defaultConfig ).forEach( function(v){
   config[v] = process.env[v] || defaultConfig[v];
 });
+
+config.LOCAL_REGISTRY = 'localhost:' + config.PORT;
 
 module.exports = config;
 
