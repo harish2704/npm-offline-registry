@@ -4,6 +4,7 @@ var utils = require( __dirname + '/./utils');
 
 var NPM_PATH = config.NPM_PATH;
 var REGISTRY_NAME = config.REGISTRY_NAME;
+var ENABLE_NPM_FAILOVER = config.ENABLE_NPM_FAILOVER;
 
 
 var fetchAndCacheMetadata = utils.fetchAndCacheMetadata;
@@ -36,8 +37,12 @@ app.get( '/:package', function( req, res, next ){
   return fileExists( cacheFile )
     .tap( function( isExists ){
       if( !isExists ){
-        res._log.cacheHit = '---';
-        return fetchAndCacheMetadata( packageName, cacheFile );
+	if ( ENABLE_NPM_FAILOVER ) {
+	  res._log.cacheHit = '---';
+	  return fetchAndCacheMetadata( packageName, cacheFile );
+	} else {
+	  return res.status( 404 ).json( {} );
+	}
       }
     })
     .then( function( ){
@@ -60,8 +65,12 @@ app.get( '/:package/-/:tarball', function( req, res, next ){
   fileExists( packagePath )
     .tap( function( isExists ){
       if( !isExists ){
-        res._log.cacheHit = '---';
-        return fetchAndCacheTarball( packageName, version, packagePath );
+	if ( ENABLE_NPM_FAILOVER ) {
+	  res._log.cacheHit = '---';
+	  return fetchAndCacheTarball( packageName, version, packagePath );
+	} else {
+	  return res.status( 404 ).json( {} );
+	}
       }
     })
     .then( function(){

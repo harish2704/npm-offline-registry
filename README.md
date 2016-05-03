@@ -40,3 +40,9 @@ I believe all the above said tools will be available in a typical UNIX machine.
 # Configurations
 
 Please check config.js. All config values can be over-written by `environment-variables` 
+
+# Using npm-offline-registry as a completely isolated registry
+
+If you set the ``ENABLE_NPM_FAILOVER`` config value to ``false`` then npm-offlin-registry will not attempt to
+contact the upstream NPM registry for unknown packages and instead return a 404 response, meaning you can use
+it as an alternative to the NPM registry behind a firewall / isolated from the internet.
