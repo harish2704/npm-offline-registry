@@ -18,7 +18,8 @@
     "start": "node ./bin/www"
   },
   "bin": {
-    "npm-offline-registry": "./bin/www"
+    "npm-offline-registry": "./bin/www",
+    "npm-offline-install": "./bin/npm-offline-install"
   },
   "repository": {
     "type": "git",
