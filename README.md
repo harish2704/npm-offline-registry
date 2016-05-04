@@ -14,8 +14,10 @@ Supper simple NPM registry server for offline NPM install
 
 * Now the server will run on [http://localhost:8234](http://localhost:8234)
 * use `http://localhost:8234/` as registry while doing npm install
-  - Either use `npm install --registry http://localhost:8234/ [package-name]...`
-  - Or permanently set config variable `npm config set registry http://localhost:8234/`
+  - use command `npm-offline-install` instead of `npm install` if you need to install packages offline. This is just a wrapper cli which will run `npm i` with `--registry` option set
+  - Advanced usage
+    * Either use `npm install --registry http://localhost:8234/ [package-name]...`
+    * Or permanently set config variable `npm config set registry http://localhost:8234/`
 
 **NOTE:** *default port can be changed by setting `PORT` environment variable *
 
