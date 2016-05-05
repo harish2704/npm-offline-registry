@@ -35,23 +35,30 @@ app.get( '/:package', function( req, res, next ){
   var cacheFile = [ NPM_PATH, REGISTRY_NAME, packageName, '.cache.json' ].join( '/' );
 
   return fileExists( cacheFile )
-    .tap( function( isExists ){
+    .then( function( isExists ){
       if( !isExists ){
-        if ( ENABLE_NPM_FAILOVER ) {
-          res._log.cacheHit = '---';
-          return fetchAndCacheMetadata( packageName, cacheFile );
-        } else {
-          return res.status( 404 ).json( {} );
+        if ( !ENABLE_NPM_FAILOVER ) {
+          return false;
         }
+        res._log.cacheHit = '---';
+        return fetchAndCacheMetadata( packageName, cacheFile );
       }
     })
-    .then( function( ){
+    .then( function( isExists ){
+      if ( !isExists ) {
+        return false;
+      }
       res._log.cacheFile = cacheFile;
       return readFile( cacheFile, 'utf-8' );
     })
     .then( function( cacheData ){
       cacheData = JSON.parse( cacheData );
-      patchData( cacheData );
+      if ( cacheData ) {
+        patchData( cacheData );
+      } else {
+        res.status( 404 );
+        cacheData = {};
+      }
       return res.send( cacheData );
     })
     .catch( next );
@@ -63,19 +70,23 @@ app.get( '/:package/-/:tarball', function( req, res, next ){
   var packagePath = [ NPM_PATH , packageName, version, 'package.tgz'].join( '/' );
 
   fileExists( packagePath )
-    .tap( function( isExists ){
+    .then( function( isExists ){
       if( !isExists ){
-        if ( ENABLE_NPM_FAILOVER ) {
-          res._log.cacheHit = '---';
-          return fetchAndCacheTarball( packageName, version, packagePath );
-        } else {
-          return res.status( 404 ).json( {} );
+        if ( !ENABLE_NPM_FAILOVER ) {
+          return false;
         }
+        res._log.cacheHit = '---';
+        return fetchAndCacheTarball( packageName, version, packagePath );
       }
     })
-    .then( function(){
+    .then( function( isExists ){
       res._log.cacheFile = packagePath;
-      return res.sendFile( packagePath );
+      if ( isExists ) {
+        return res.sendFile( packagePath );
+      } else {
+        res.status( 404 );
+        return res.end();
+      }
     })
     .catch( next );
 });
