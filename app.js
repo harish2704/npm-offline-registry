@@ -1,4 +1,5 @@
 var express = require('express');
+var Promise = require('bluebird');
 var config = require( __dirname + '/./config' );
 var utils = require( __dirname + '/./utils');
 
@@ -37,22 +38,21 @@ app.get( '/:package', function( req, res, next ){
   return fileExists( cacheFile )
     .tap( function( isExists ){
       if( !isExists ){
-        if ( ENABLE_NPM_FAILOVER ) {
-          res._log.cacheHit = '---';
-          return fetchAndCacheMetadata( packageName, cacheFile );
-        } else {
-          return res.status( 404 ).json( {} );
+        if ( !ENABLE_NPM_FAILOVER ) {
+          return Promise.reject( { status:404, message: 'Package not found' });
         }
+        res._log.cacheHit = '---';
+        return fetchAndCacheMetadata( packageName, cacheFile );
       }
     })
     .then( function( ){
       res._log.cacheFile = cacheFile;
       return readFile( cacheFile, 'utf-8' );
     })
-    .then( function( cacheData ){
-      cacheData = JSON.parse( cacheData );
-      patchData( cacheData );
-      return res.send( cacheData );
+    .then( function( cachedData ){
+      cachedData = JSON.parse( cachedData );
+      patchData( cachedData );
+      return res.send( cachedData );
     })
     .catch( next );
 });
@@ -65,15 +65,14 @@ app.get( '/:package/-/:tarball', function( req, res, next ){
   fileExists( packagePath )
     .tap( function( isExists ){
       if( !isExists ){
-        if ( ENABLE_NPM_FAILOVER ) {
-          res._log.cacheHit = '---';
-          return fetchAndCacheTarball( packageName, version, packagePath );
-        } else {
-          return res.status( 404 ).json( {} );
+        if ( !ENABLE_NPM_FAILOVER ) {
+          return Promise.reject( { status: 404, message: '' });
         }
+        res._log.cacheHit = '---';
+        return fetchAndCacheTarball( packageName, version, packagePath );
       }
     })
-    .then( function(){
+    .then( function( ){
       res._log.cacheFile = packagePath;
       return res.sendFile( packagePath );
     })
@@ -93,10 +92,7 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
   console.log( err.stack );
   res.status(err.status || 500);
-  res.send({
-    message: err.message,
-    error: err
-  });
+  res.send( err.message || err );
   if( next ) { next(); }
 });
 
