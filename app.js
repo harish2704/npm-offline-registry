@@ -44,8 +44,8 @@ app.get( '/:package', function( req, res, next ){
         return fetchAndCacheMetadata( packageName, cacheFile );
       }
     })
-    .then( function( isExists ){
-      if ( !isExists ) {
+    .then( function( cacheState ){
+      if ( !cacheState ) {
         return false;
       }
       res._log.cacheFile = cacheFile;
@@ -79,9 +79,9 @@ app.get( '/:package/-/:tarball', function( req, res, next ){
         return fetchAndCacheTarball( packageName, version, packagePath );
       }
     })
-    .then( function( isExists ){
+    .then( function( cacheState ){
       res._log.cacheFile = packagePath;
-      if ( isExists ) {
+      if ( cacheState ) {
         return res.sendFile( packagePath );
       } else {
         res.status( 404 );
