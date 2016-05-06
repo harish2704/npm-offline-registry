@@ -39,7 +39,8 @@ app.get( '/:package', function( req, res, next ){
     .tap( function( isExists ){
       if( !isExists ){
         if ( !ENABLE_NPM_FAILOVER ) {
-          return Promise.reject( { status:404, message: 'Package not found' });
+          res._log.cacheHit = '!!!';
+          return Promise.reject( { status:404, message:  {}});
         }
         res._log.cacheHit = '---';
         return fetchAndCacheMetadata( packageName, cacheFile );
@@ -66,7 +67,8 @@ app.get( '/:package/-/:tarball', function( req, res, next ){
     .tap( function( isExists ){
       if( !isExists ){
         if ( !ENABLE_NPM_FAILOVER ) {
-          return Promise.reject( { status: 404, message: '' });
+          res._log.cacheHit = '!!!';
+          return Promise.reject( { status: 404, message: {} });
         }
         res._log.cacheHit = '---';
         return fetchAndCacheTarball( packageName, version, packagePath );
@@ -90,7 +92,7 @@ app.use(function(req, res, next) {
 // error handlers
 
 app.use(function(err, req, res, next) {
-  console.log( err.stack );
+  err.stack && console.log( err.stack );
   res.status(err.status || 500);
   res.send( err.message || err );
   if( next ) { next(); }
