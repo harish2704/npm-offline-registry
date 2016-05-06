@@ -1,4 +1,5 @@
 var express = require('express');
+var Promise = require('bluebird');
 var config = require( __dirname + '/./config' );
 var utils = require( __dirname + '/./utils');
 
@@ -35,31 +36,23 @@ app.get( '/:package', function( req, res, next ){
   var cacheFile = [ NPM_PATH, REGISTRY_NAME, packageName, '.cache.json' ].join( '/' );
 
   return fileExists( cacheFile )
-    .then( function( isExists ){
+    .tap( function( isExists ){
       if( !isExists ){
         if ( !ENABLE_NPM_FAILOVER ) {
-          return false;
+          return Promise.reject( { status:404, message: 'Package not found' });
         }
         res._log.cacheHit = '---';
         return fetchAndCacheMetadata( packageName, cacheFile );
       }
     })
-    .then( function( cacheState ){
-      if ( !cacheState ) {
-        return false;
-      }
+    .then( function( ){
       res._log.cacheFile = cacheFile;
       return readFile( cacheFile, 'utf-8' );
     })
-    .then( function( cacheData ){
-      cacheData = JSON.parse( cacheData );
-      if ( cacheData ) {
-        patchData( cacheData );
-      } else {
-        res.status( 404 );
-        cacheData = {};
-      }
-      return res.send( cacheData );
+    .then( function( cachedData ){
+      cachedData = JSON.parse( cachedData );
+      patchData( cachedData );
+      return res.send( cachedData );
     })
     .catch( next );
 });
@@ -70,23 +63,18 @@ app.get( '/:package/-/:tarball', function( req, res, next ){
   var packagePath = [ NPM_PATH , packageName, version, 'package.tgz'].join( '/' );
 
   fileExists( packagePath )
-    .then( function( isExists ){
+    .tap( function( isExists ){
       if( !isExists ){
         if ( !ENABLE_NPM_FAILOVER ) {
-          return false;
+          return Promise.reject( { status: 404, message: '' });
         }
         res._log.cacheHit = '---';
         return fetchAndCacheTarball( packageName, version, packagePath );
       }
     })
-    .then( function( cacheState ){
+    .then( function( ){
       res._log.cacheFile = packagePath;
-      if ( cacheState ) {
-        return res.sendFile( packagePath );
-      } else {
-        res.status( 404 );
-        return res.end();
-      }
+      return res.sendFile( packagePath );
     })
     .catch( next );
 });
@@ -104,10 +92,7 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
   console.log( err.stack );
   res.status(err.status || 500);
-  res.send({
-    message: err.message,
-    error: err
-  });
+  res.send( err.message || err );
   if( next ) { next(); }
 });
 
