@@ -29,7 +29,11 @@ exports.readFile = readFile;
 exports.patchData = function ( data ){
   Object.keys(data.versions).forEach( function( v ){
     var val = data.versions[v];
-    val.dist.tarball = val.dist.tarball.replace( REGISTRY_NAME, LOCAL_REGISTRY );
+    var protocal = 'http://';
+    if( val.dist.tarball.indexOf( 'https:' ) !== false ){
+      protocal = 'https://';
+    }
+    val.dist.tarball = val.dist.tarball.replace( protocal + REGISTRY_NAME, LOCAL_REGISTRY );
   });
 };
 
