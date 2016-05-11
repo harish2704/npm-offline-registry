@@ -94,7 +94,12 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
   err.stack && console.log( err.stack );
   res.status(err.status || 500);
-  res.send( err.message || err );
+  var message = err.message || err;
+  // NPM registry returns empty objects for unknown packages
+  if( err.status == 404 ){
+    message = {};
+  }
+  res.send( message );
   if( next ) { next(); }
 });
 
