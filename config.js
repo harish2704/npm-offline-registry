@@ -13,7 +13,10 @@ Object.keys( defaultConfig ).forEach( function(v){
 });
 
 
-config.LOCAL_REGISTRY = 'localhost:' + config.PORT;
+if( !config.LOCAL_REGISTRY ){
+  config.LOCAL_REGISTRY = 'http://localhost:' + config.PORT;
+}
+
 if( config.ENABLE_NPM_FAILOVER == 'false' ){
   config.ENABLE_NPM_FAILOVER = false;
 }
