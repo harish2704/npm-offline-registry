@@ -40,7 +40,7 @@ app.get( '/:package', function( req, res, next ){
       if( !isExists ){
         if ( !ENABLE_NPM_FAILOVER ) {
           res._log.cacheHit = '!!!';
-          return Promise.reject( { status:404, message:  {}});
+          return Promise.reject( { status: 404 });
         }
         res._log.cacheHit = '---';
         return fetchAndCacheMetadata( packageName, cacheFile );
@@ -68,7 +68,7 @@ app.get( '/:package/-/:tarball', function( req, res, next ){
       if( !isExists ){
         if ( !ENABLE_NPM_FAILOVER ) {
           res._log.cacheHit = '!!!';
-          return Promise.reject( { status: 404, message: {} });
+          return Promise.reject( { status: 404 });
         }
         res._log.cacheHit = '---';
         return fetchAndCacheTarball( packageName, version, packagePath );
@@ -84,17 +84,15 @@ app.get( '/:package/-/:tarball', function( req, res, next ){
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+  next({ status: 404 });
 });
 
 // error handlers
 
 app.use(function(err, req, res, next) {
+  var message = err.message || err;
   err.stack && console.log( err.stack );
   res.status(err.status || 500);
-  var message = err.message || err;
   // NPM registry returns empty objects for unknown packages
   if( err.status == 404 ){
     message = {};
