@@ -50,6 +50,7 @@ var  fetchAndCacheTarballCmd = [
 
 exports.fetchAndCacheMetadata = function ( packageName, cacheFile ){
   var packageCacheDir = path.dirname( cacheFile );
+  //handle slash in scoped package name but do not convert @
   var packageNameEncoded = encodeURIComponent(packageName).replace(/^%40/, '@');
 
   return exec( fetchAndCacheMetadataCmd, {
@@ -61,6 +62,7 @@ exports.fetchAndCacheMetadata = function ( packageName, cacheFile ){
 };
 
 exports.fetchAndCacheTarball = function ( packageName, version, tarballPath ){
+  //handle slash in scoped package name but do not convert @
   var packageNameEncoded = encodeURIComponent(packageName).replace(/^%40/, '@');
   
   var tarballUrl = 'http://' + REGISTRY_NAME + '/' + packageNameEncoded + '/-/' + packageNameEncoded + '-' + version + '.tgz';
