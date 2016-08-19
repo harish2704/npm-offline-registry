@@ -39,7 +39,7 @@ exports.patchData = function ( data ){
 
 var fetchAndCacheMetadataCmd =[
   'mkdir -p $packageCacheDir',
-  'wget -nv "http://$REGISTRY_NAME/$packageNameEncoded" -O $cacheFile || { wgetExitStatus=$? && rm $cacheFile; exit $wgetExitStatus ; }'
+  'wget -nv "http://$REGISTRY_NAME/$packageName" -O $cacheFile || { wgetExitStatus=$? && rm $cacheFile; exit $wgetExitStatus ; }'
 ].join( ';' );
 
 var  fetchAndCacheTarballCmd = [
@@ -51,21 +51,21 @@ var  fetchAndCacheTarballCmd = [
 exports.fetchAndCacheMetadata = function ( packageName, cacheFile ){
   var packageCacheDir = path.dirname( cacheFile );
   //handle slash in scoped package name but do not convert @
-  var packageNameEncoded = encodeURIComponent(packageName).replace(/^%40/, '@');
+  packageName = encodeURIComponent(packageName).replace(/^%40/, '@');
 
   return exec( fetchAndCacheMetadataCmd, {
     packageCacheDir: packageCacheDir,
     REGISTRY_NAME: REGISTRY_NAME,
-    packageNameEncoded: packageNameEncoded,
+    packageName: packageName,
     cacheFile: cacheFile,
   });
 };
 
 exports.fetchAndCacheTarball = function ( packageName, version, tarballPath ){
   //handle slash in scoped package name but do not convert @
-  var packageNameEncoded = encodeURIComponent(packageName).replace(/^%40/, '@');
+  packageNapackageNamemeEncoded = encodeURIComponent(packageName).replace(/^%40/, '@');
   
-  var tarballUrl = 'http://' + REGISTRY_NAME + '/' + packageNameEncoded + '/-/' + packageNameEncoded + '-' + version + '.tgz';
+  var tarballUrl = 'http://' + REGISTRY_NAME + '/' + packageName + '/-/' + packageName + '-' + version + '.tgz';
   var packageTarballDir = path.dirname( tarballPath );
 
   return exec( fetchAndCacheTarballCmd, {
