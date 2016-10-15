@@ -1,6 +1,6 @@
 {
   "name": "npm-offline-registry",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Super simple loca npm registry server for offline usage",
   "main": "bin/www",
   "directories": {
