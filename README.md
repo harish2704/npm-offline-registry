@@ -43,6 +43,14 @@ I believe all the above said tools will be available in a typical UNIX machine.
 
 Please check config.js. All config values can be over-written by `environment-variables` 
 
+# Suggestion for desktop users
+
+* make sure that, Some process manager tool ( Lets say [pm2](https://github.com/Unitech/pm2) is available in your `PATH` )
+* install npm-offline-registry globally ( Or add your $HOME/node_modules/.bin to PATH variable )
+* Add this start-up command to your "start up applications" `pm2 start npm-offline-registry`
+* Then you can use the command `npm-offine-install` at any time duting the desktop-session without any hassle
+
+
 # Using npm-offline-registry as a completely isolated registry
 
 If you set the ``ENABLE_NPM_FAILOVER`` config value to ``false`` then npm-offlin-registry will not attempt to
