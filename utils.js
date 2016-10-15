@@ -48,11 +48,15 @@ var  fetchAndCacheTarballCmd = [
   'cd $packageTarballDir; tar -xzf package.tgz package/package.json',
 ].join( ';' );
 
+
+function encodePackageName( packageName ){
+  //handle slash in scoped package name but do not convert @
+  return encodeURIComponent(packageName).replace(/^%40/, '@');
+}
+
 exports.fetchAndCacheMetadata = function ( packageName, cacheFile ){
   var packageCacheDir = path.dirname( cacheFile );
-  //handle slash in scoped package name but do not convert @
-  packageName = encodeURIComponent(packageName).replace(/^%40/, '@');
-
+  packageName = encodePackageName( packageName );
   return exec( fetchAndCacheMetadataCmd, {
     packageCacheDir: packageCacheDir,
     REGISTRY_NAME: REGISTRY_NAME,
@@ -62,8 +66,7 @@ exports.fetchAndCacheMetadata = function ( packageName, cacheFile ){
 };
 
 exports.fetchAndCacheTarball = function ( packageName, version, tarballPath ){
-  //handle slash in scoped package name but do not convert @
-  packageName = encodeURIComponent(packageName).replace(/^%40/, '@');
+  packageName = encodePackageName( packageName );
   
   var tarballUrl = 'http://' + REGISTRY_NAME + '/' + packageName + '/-/' + packageName + '-' + version + '.tgz';
   var packageTarballDir = path.dirname( tarballPath );
