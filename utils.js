@@ -6,6 +6,7 @@ var _exec = Promise.promisify( require('child_process').exec );
 
 var REGISTRY_NAME = config.REGISTRY_NAME;
 var LOCAL_REGISTRY = config.LOCAL_REGISTRY;
+var NPM_PATH = config.NPM_PATH;
 
 
 function exec( cmd, envVars ){
@@ -27,8 +28,18 @@ exports.readFile = readFile;
 
 
 exports.patchData = function ( data ){
+  /* Get the list of versions which is available in local cache */
+  var cachedVersions = fs.readdirSync( path.join( NPM_PATH, data.name ) );
   Object.keys(data.versions).forEach( function( v ){
     var val = data.versions[v];
+
+    /* Suppose our cache.json is at latest revision. It contains lot of versions which is not available in local cache.
+    Then, Remove the versions which is not in local cache from the list. Otherwise npm will always choose higher versions whcih is not available in our cache */
+    /* TODO: If this feature causing problem, We can make this behaviour optional via some commandline-arguments/Env-variables */
+    if( cachedVersions.indexOf(v) == -1 ){
+      delete data.versions[v];
+      return;
+    }
     var protocal = 'http://';
     if( val.dist.tarball.indexOf( 'https:' ) !== false ){
       protocal = 'https://';
