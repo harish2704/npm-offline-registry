@@ -1,4 +1,3 @@
-# npm-offline-registry
 Supper simple NPM registry server for offline NPM install
 
 # Usage
@@ -56,3 +55,14 @@ Please check config.js. All config values can be over-written by `environment-va
 If you set the ``ENABLE_NPM_FAILOVER`` config value to ``false`` then npm-offlin-registry will not attempt to
 contact the upstream NPM registry for unknown packages and instead return a 404 response, meaning you can use
 it as an alternative to the NPM registry behind a firewall / isolated from the internet.
+
+# Enabling strict mode
+
+If config value `STRICT` is set to true, while npm checks for the available versions of a given packages, 
+registry server will reply with list of cached versions.
+In this case, if the version is not previously cached, npm-offline-install will fail with, error message `version not available`
+
+example
+```bash 
+env STRICT=true npm-offline-registry`
+```

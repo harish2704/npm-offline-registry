@@ -3,7 +3,8 @@ var defaultConfig = {
   NPM_PATH       : process.env.HOME + '/.npm',
   REGISTRY_NAME  : 'registry.npmjs.org',
   PORT: 8234,
-  ENABLE_NPM_FAILOVER: true
+  ENABLE_NPM_FAILOVER: true,
+  STRICT: false
 };
 
 var config = {};
@@ -21,5 +22,8 @@ if( config.ENABLE_NPM_FAILOVER == 'false' ){
   config.ENABLE_NPM_FAILOVER = false;
 }
 
+if( config.STRICT == 'true' ){
+  config.STRICT = true;
+}
 module.exports = config;
 
