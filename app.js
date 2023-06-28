@@ -81,6 +81,30 @@ app.get( '/:package/-/:tarball', function( req, res, next ){
     .catch( next );
 });
 
+app.get( '/:scope/:package/-/:tarball', function( req, res, next ){
+  var scopeName = req.params.scope;
+  var packageName = req.params.package;
+  var version = req.params.tarball.match( new RegExp( packageName + '-(.*).tgz') )[1];
+  var packagePath = [ NPM_PATH , scopeName + "/" + packageName, version, 'package.tgz'].join( '/' );
+
+  fileExists( packagePath )
+    .tap( function( isExists ){
+      if( !isExists ){
+        if ( !ENABLE_NPM_FAILOVER ) {
+          res._log.cacheHit = '!!!';
+          return Promise.reject( { status: 404 });
+        }
+        res._log.cacheHit = '---';
+        return fetchAndCacheTarball( packageName, version, packagePath, scopeName );
+      }
+    })
+    .then( function( ){
+      res._log.cacheFile = packagePath;
+      return res.sendFile( packagePath );
+    })
+    .catch( next );
+});
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

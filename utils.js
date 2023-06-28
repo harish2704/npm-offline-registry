@@ -85,10 +85,13 @@ exports.fetchAndCacheMetadata = function ( packageName, cacheFile ){
   });
 };
 
-exports.fetchAndCacheTarball = function ( packageName, version, tarballPath ){
+exports.fetchAndCacheTarball = function ( packageName, version, tarballPath, scopeName ){
   packageName = encodePackageName( packageName );
   
   var tarballUrl = 'http://' + REGISTRY_NAME + '/' + packageName + '/-/' + packageName + '-' + version + '.tgz';
+  if (scopeName) {
+    tarballUrl = 'http://' + REGISTRY_NAME + '/' + scopeName + '/' + packageName + '/-/' + packageName + '-' + version + '.tgz';
+  }
   var packageTarballDir = path.dirname( tarballPath );
 
   return exec( fetchAndCacheTarballCmd, {
